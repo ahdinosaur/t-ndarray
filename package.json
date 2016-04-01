@@ -1,0 +1,31 @@
+{
+  "name": "t-ndarray",
+  "version": "1.0.0",
+  "description": "tcomb type for n-dimensional arrays",
+  "main": "index.js",
+  "scripts": {
+    "test": "tape test.js",
+    "start": "node-dev example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ahdinosaur/t-ndarray.git"
+  },
+  "keywords": [],
+  "author": "Mikey <michael.williams@enspiral.com> (http://dinosaur.is)",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ahdinosaur/t-ndarray/issues"
+  },
+  "homepage": "https://github.com/ahdinosaur/t-ndarray#readme",
+  "devDependencies": {
+    "node-dev": "^3.1.0",
+    "npm-run-all": "^1.6.0",
+    "tape": "^4.5.1"
+  },
+  "dependencies": {
+    "isndarray": "^1.0.0",
+    "ndarray": "^1.0.18",
+    "tcomb": "^3.0.0"
+  }
+}
