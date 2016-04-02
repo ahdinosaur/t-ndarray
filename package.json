@@ -19,8 +19,11 @@
   },
   "homepage": "https://github.com/ahdinosaur/t-ndarray#readme",
   "devDependencies": {
+    "dup": "^1.0.0",
+    "invert-permutation": "^1.0.0",
     "node-dev": "^3.1.0",
     "npm-run-all": "^1.6.0",
+    "permutation-rank": "^1.0.0",
     "tape": "^4.5.1"
   },
   "dependencies": {
