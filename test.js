@@ -6,12 +6,14 @@ var Ndarray = require('./')
 
 // compat with existing ndarray tests
 var ndarray = function compat (data, shape, stride, offset) {
-  return Ndarray({
+  var arr = Ndarray({
     data: data,
     shape: shape,
     stride: stride,
     offset: offset
   })
+  console.log('arr', arr)
+  return arr
 }
 
 test('ndarray', function(t) {
