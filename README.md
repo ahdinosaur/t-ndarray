@@ -1,14 +1,29 @@
 # t-ndarray
 
-tcomb type for n-dimensional arrays
+tcomb type for [n-dimensional arrays](https://github.com/scijs/ndarray/).
+
+meant to be a friendly replacement for [`ndarray`](https://github.com/scijs/ndarray/) `*`, includes [tcomb type checking](https://github.com/gcanti/tcomb/) and more human-readable source code, at the expense of performance.
 
 ```shell
 npm install --save t-ndarray
 ```
 
+`*` `t-ndarray` constructor accepts options as a single object, unlike `ndarray` which accepts options as ordered arguments
+
 ## usage
 
-### `tNdarray = require('t-ndarray')`
+see [`ndarray`](https://github.com/scijs/ndarray/) for available methods on `ndarray` instances.
+
+### `Ndarray = require('t-ndarray')`
+
+### `ndarray = Ndarray(options)`
+
+- required `options.data`
+- `options.shape`
+- `options.stride`
+- `options.offset`
+
+### `Ndarray.is(any)`
 
 ## license
 
