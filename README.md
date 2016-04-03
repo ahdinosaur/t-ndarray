@@ -4,10 +4,10 @@ tcomb type for [n-dimensional arrays](https://github.com/scijs/ndarray/).
 
 meant to be a friendly replacement for [`ndarray`](https://github.com/scijs/ndarray/)\*:
 
-- [tcomb type for validation and extensions](https://github.com/gcanti/tcomb/)
-- human-readable source code (without performance hacks)
+- [extensible validation type](https://github.com/gcanti/tcomb/)
+- human-readable source code
 
-when `process.env.NODE_ENV === 'production'`, exports compatibility wrapper around [`ndarray`](https://github.com/scijs/ndarray/) for performance.
+at the expense of [reduced performance](https://github.com/ahdinosaur/ndarray-experiments) when not using [`cwise`](https://github.com/scijs/cwise).
 
 ```shell
 npm install --save t-ndarray
