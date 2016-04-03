@@ -1,6 +1,9 @@
+'use strict';
+
 var Tc = require('tcomb')
 var defaults = require('tcomb-defaults')
 var getDtype = require('./dtype')
+var slice = require('sliced')
 
 // special case for -1 dimensional array
 var TrivialNdarray = Tc.struct({
@@ -39,7 +42,11 @@ module.exports = defaults(Ndarray, {
 Object.defineProperties(Ndarray.prototype, {
   dtype: { get: function () { return getDtype(this.data) } },
   size: { get: function () {
-    return this.shape.reduce(mult, 1)
+    var size = 1
+    for (var i = 0; i < this.shape.length; ++i) {
+      size *= this.shape[i]
+    }
+    return size
   } },
   dimension: { get: function () {
     return this.shape.length
@@ -47,13 +54,12 @@ Object.defineProperties(Ndarray.prototype, {
   order: { get: function () {
     var stride = this.stride
     var terms = new Array(stride.length)
-    var i
-    for(i=0; i<terms.length; ++i) {
+    for(var i = 0; i < terms.length; ++i) {
       terms[i] = [Math.abs(stride[i]), i]
     }
     terms.sort(compare1st)
     var result = new Array(terms.length)
-    for(i=0; i<result.length; ++i) {
+    for(i=0; i < result.length; ++i) {
       result[i] = terms[i][1]
     }
     return result
@@ -70,46 +76,52 @@ Object.defineProperties(Ndarray.prototype, {
   } },
   set: { value: function () {
     var index = this.index.apply(this, arguments)
-    var value = arguments[arguments.length - 1]
+    var value = arguments[this.dimension]
     return (this.dtype === 'generic') ?
       this.data.set(index, value) : (this.data[index] = value)
   } },
   index: { value: function () {
-    var args = slice(arguments, 0, this.dimension)
-    return args
-    .map(function (value, index) {
-      return value * this.stride[index]
-    }, this)
-    .reduce(add, this.offset)
+    var args = sliceArgs(arguments, 0, this.dimension)
+    var index = this.offset
+    for (var i = 0; i < args.length; ++i) {
+      index += args[i] * this.stride[i]
+    }
+    return index
   } },
   hi: { value: function () {
-    var args = slice(arguments, 0, this.dimension)
-    var nextShape = this.shape.map(function (prev, index) {
-      var next = args[index]
-      return (Tc.Number.is(next) && next >= 0) ? next : prev
-    })
+    var args = sliceArgs(arguments, 0, this.dimension)
+    var nextShape = new Array(this.shape.length)
+    for (var i = 0; i < this.shape.length; ++i) {
+      var prev = this.shape[i]
+      var next = args[i]
+      nextShape[i] = (
+        Tc.Number.is(next) && next >= 0
+      ) ? next : prev
+    }
     return Ndarray.update(this, { shape: { $set: nextShape } })
   } },
   lo: { value: function () {
-    var args = slice(arguments, 0, this.dimension)
+    var args = sliceArgs(arguments, 0, this.dimension)
     var nextShape = this.shape.slice()
     var nextOffset = this.offset
-    args.forEach(function (arg, index) {
+    for (var i = 0; i < args.length; ++i) {
+      var arg = args[i]
       if (Tc.Number.is(arg) && arg >= 0) {
-        nextOffset += this.stride[index] * arg
-        nextShape[index] -= arg
+        nextOffset += this.stride[i] * arg
+        nextShape[i] -= arg
       }
-    }, this)
+    }
     return Ndarray.update(this, {
       shape: { $set: nextShape },
       offset: { $set: nextOffset }
     })
   } },
   step: { value: function () {
-    var args = slice(arguments, 0, this.dimension)
+    var args = sliceArgs(arguments, 0, this.dimension)
     var nextShape = this.shape.slice()
     var nextStride = this.stride.slice()
     var nextOffset = this.offset
+    // TODO for loop
     args.forEach(function (arg, index) {
       if (Tc.Number.is(arg)) {
         if (arg < 0) {
@@ -128,10 +140,11 @@ Object.defineProperties(Ndarray.prototype, {
     })
   } },
   transpose: { value: function () {
-    var args = slice(arguments, 0, this.dimension)
+    var args = sliceArgs(arguments, 0, this.dimension)
     var nextShape = this.shape.slice()
     var nextStride = this.stride.slice()
     var nextOffset = this.offset
+    // TODO for loop
     args.forEach(function (arg, index) {
       if (Tc.Nil.is(arg)) { arg = index }
       nextShape[index] = this.shape[arg]
@@ -148,10 +161,11 @@ Object.defineProperties(Ndarray.prototype, {
     if (this.dimension === 0) {
       return TrivialNdarray({ data: this.data })
     }
-    var args = slice(arguments, 0, this.dimension)
+    var args = sliceArgs(arguments, 0, this.dimension)
     var nextShape = []
     var nextStride = []
     var nextOffset = this.offset
+    // TODO for loop
     args.forEach(function (arg, index) {
       if (Tc.Number.is(arg) && arg >= 0) {
         nextOffset = (nextOffset + this.stride[index] * arg)
@@ -196,13 +210,8 @@ function defaultOffset () {
   return offset
 }
 
-function compare1st(a, b) {
-  return a[0] - b[0]
-}
-function add (a, b) { return a + b }
-function mult (a, b) { return a * b }
-function slice (arr, start, end) {
-  var sliced = Array.prototype.slice.call(arr, start, end)
+function sliceArgs (arr, start, end) {
+  var sliced = slice(arr, start, end)
   if ((end - start) > sliced.length) {
     var prevLength = sliced.length
     sliced.length = end
@@ -210,3 +219,7 @@ function slice (arr, start, end) {
   }
   return sliced
 }
+
+function add (a, b) { return a + b }
+function mult (a, b) { return a * b }
+function compare1st(a, b) { return a[0] - b[0] }
