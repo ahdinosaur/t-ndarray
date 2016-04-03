@@ -7,6 +7,11 @@
     "test": "tape test.js",
     "start": "node-dev example"
   },
+  "browserify": {
+    "transform": [
+      "loose-envify"
+    ]
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ahdinosaur/t-ndarray.git"
@@ -28,8 +33,9 @@
   },
   "dependencies": {
     "isndarray": "^1.0.0",
+    "loose-envify": "^1.1.0",
     "ndarray": "^1.0.18",
     "tcomb": "^3.0.0",
-    "tcomb-defaults": "^1.1.0"
+    "tcomb-defaults": "^1.1.1"
   }
 }

@@ -1,13 +1,13 @@
-var hasTypedArrays  = ((typeof Float64Array) !== "undefined")
+var hasTypedArrays = ((typeof Float64Array) !== "undefined")
 
 module.exports = getDtype
 
 function getDtype (data) {
-  if(Buffer.isBuffer(data)) {
+  if (Buffer.isBuffer(data)) {
     return "buffer"
   }
 
-  if(hasTypedArrays) {
+  if (hasTypedArrays) {
     switch(Object.prototype.toString.call(data)) {
       case "[object Float64Array]":
         return "float64"
@@ -30,7 +30,7 @@ function getDtype (data) {
     }
   }
 
-  if(Array.isArray(data)) {
+  if (Array.isArray(data)) {
     return "array"
   }
 
