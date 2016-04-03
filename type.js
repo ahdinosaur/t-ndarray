@@ -1,7 +1,7 @@
 'use strict';
 
 var Tc = require('tcomb')
-var defaults = require('tcomb-defaults')
+var setDefaults = require('tcomb-defaults')
 var getDtype = require('./dtype')
 var slice = require('sliced')
 
@@ -33,11 +33,14 @@ var Ndarray = TrivialNdarray.extend({
   offset: Tc.maybe(Tc.Number)
 }, 'Ndarray')
 
-module.exports = defaults(Ndarray, {
+var defaults = {
   shape: defaultShape,
   stride: defaultStride,
   offset: defaultOffset
-})
+}
+
+module.exports = setDefaults(Ndarray, defaults)
+module.exports.defaults = defaults
 
 Object.defineProperties(Ndarray.prototype, {
   dtype: { get: function () { return getDtype(this.data) } },
