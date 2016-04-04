@@ -27,7 +27,7 @@
   "dependencies": {
     "describe-property": "^1.1.0",
     "sliced": "^1.0.1",
-    "tcomb": "^3.0.0",
+    "tcomb": "github:ahdinosaur/tcomb#struct-prototype",
     "tcomb-defaults": "^1.2.1"
   }
 }
