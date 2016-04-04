@@ -25,8 +25,9 @@
     "tape": "^4.5.1"
   },
   "dependencies": {
+    "describe-property": "^1.1.0",
     "sliced": "^1.0.1",
     "tcomb": "^3.0.0",
-    "tcomb-defaults": "^1.1.1"
+    "tcomb-defaults": "^1.2.1"
   }
 }

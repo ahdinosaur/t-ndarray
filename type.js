@@ -4,6 +4,7 @@ var Tc = require('tcomb')
 var setDefaults = require('tcomb-defaults')
 var getDtype = require('./dtype')
 var slice = require('sliced')
+var dp = require('describe-property')
 
 // special case for -1 dimensional array
 var TrivialNdarray = Tc.struct({
@@ -11,20 +12,20 @@ var TrivialNdarray = Tc.struct({
 }, 'TrivialNdarray')
 
 Object.defineProperties(TrivialNdarray.prototype, {
-  dtype: { get: function () { return getDtype(this.data) } },
-  dimension: { get: function () { return -1 } },
-  size: { get: function () { return 0 } },
-  shape: { value: function () { return [] } },
-  stride: { value: function () { return [] } },
-  order: { value: function () { return [] } },
-  index: { value: function () { return -1 } },
-  lo: { value: function () { return TrivialNdarray({ data: this.data }) } },
-  hi: { value: function () { return TrivialNdarray({ data: this.data }) } },
-  transpose: { value: function () { return TrivialNdarray({ data: this.data }) } },
-  step: { value: function () { return TrivialNdarray({ data: this.data }) } },
-  get: { value: function () { } },
-  set: { value: function () { } },
-  pick: { value: function () { return null } }
+  dtype: dp.gs(function () { return getDtype(this.data) }),
+  dimension: dp.gs(function () { return -1 }),
+  size: dp.gs(function () { return 0 }),
+  shape: dp(function () { return [] }),
+  stride: dp(function () { return [] }),
+  order: dp(function () { return [] }),
+  index: dp(function () { return -1 }),
+  lo: dp(function () { return TrivialNdarray({ data: this.data }) }),
+  hi: dp(function () { return TrivialNdarray({ data: this.data }) }),
+  transpose: dp(function () { return TrivialNdarray({ data: this.data }) }),
+  step: dp(function () { return TrivialNdarray({ data: this.data }) }),
+  get: dp(function () { }),
+  set: dp(function () { }),
+  pick: dp(function () { return null })
 })
 
 var Ndarray = TrivialNdarray.extend({
@@ -39,22 +40,18 @@ var defaults = {
   offset: defaultOffset
 }
 
-module.exports = setDefaults(Ndarray, defaults)
-module.exports.defaults = defaults
-
 Object.defineProperties(Ndarray.prototype, {
-  dtype: { get: function () { return getDtype(this.data) } },
-  size: { get: function () {
+  size: dp.gs(function () {
     var size = 1
     for (var i = 0; i < this.shape.length; ++i) {
       size *= this.shape[i]
     }
     return size
-  } },
-  dimension: { get: function () {
+  }),
+  dimension: dp.gs(function () {
     return this.shape.length
-  } },
-  order: { get: function () {
+  }),
+  order: dp.gs(function () {
     var stride = this.stride
     var terms = new Array(stride.length)
     for(var i = 0; i < terms.length; ++i) {
@@ -66,32 +63,31 @@ Object.defineProperties(Ndarray.prototype, {
       result[i] = terms[i][1]
     }
     return result
-  } },
-  get: { value: function () {
+  }),
+  get: dp(function () {
     var index = this.index.apply(this, arguments)
     return (this.dtype === 'generic') ?
       this.data.get(index) : this.data[index]
-  } },
-  valueOf: { value: function () {
+  }),
+  valueOf: dp(function () {
     if (this.dimension === 0) {
       return this.get()
     }
-  } },
-  set: { value: function () {
+  }),
+  set: dp(function () {
     var index = this.index.apply(this, arguments)
     var value = arguments[this.dimension]
     return (this.dtype === 'generic') ?
       this.data.set(index, value) : (this.data[index] = value)
-  } },
-  index: { value: function () {
-    var args = sliceArgs(arguments, 0, this.dimension)
+  }),
+  index: dp(function () {
     var index = this.offset
-    for (var i = 0; i < args.length; ++i) {
-      index += args[i] * this.stride[i]
+    for (var i = 0; i < this.dimension; ++i) {
+      index += arguments[i] * this.stride[i]
     }
     return index
-  } },
-  hi: { value: function () {
+  }),
+  hi: dp(function () {
     var args = sliceArgs(arguments, 0, this.dimension)
     var nextShape = new Array(this.shape.length)
     for (var i = 0; i < this.shape.length; ++i) {
@@ -102,8 +98,8 @@ Object.defineProperties(Ndarray.prototype, {
       ) ? next : prev
     }
     return Ndarray.update(this, { shape: { $set: nextShape } })
-  } },
-  lo: { value: function () {
+  }),
+  lo: dp(function () {
     var args = sliceArgs(arguments, 0, this.dimension)
     var nextShape = this.shape.slice()
     var nextOffset = this.offset
@@ -118,8 +114,8 @@ Object.defineProperties(Ndarray.prototype, {
       shape: { $set: nextShape },
       offset: { $set: nextOffset }
     })
-  } },
-  step: { value: function () {
+  }),
+  step: dp(function () {
     var args = sliceArgs(arguments, 0, this.dimension)
     var nextShape = this.shape.slice()
     var nextStride = this.stride.slice()
@@ -141,8 +137,8 @@ Object.defineProperties(Ndarray.prototype, {
       stride: { $set: nextStride },
       offset: { $set: nextOffset }
     })
-  } },
-  transpose: { value: function () {
+  }),
+  transpose: dp(function () {
     var args = sliceArgs(arguments, 0, this.dimension)
     var nextShape = this.shape.slice()
     var nextStride = this.stride.slice()
@@ -158,8 +154,8 @@ Object.defineProperties(Ndarray.prototype, {
       stride: { $set: nextStride },
       offset: { $set: nextOffset }
     })
-  } },
-  pick: { value: function () {
+  }),
+  pick: dp(function () {
     // special case for when dimension is already 0
     if (this.dimension === 0) {
       return TrivialNdarray({ data: this.data })
@@ -182,9 +178,10 @@ Object.defineProperties(Ndarray.prototype, {
       stride: { $set: nextStride },
       offset: { $set: nextOffset }
     })
-  } }
+  })
 })
 
+module.exports = setDefaults(Ndarray, defaults)
 
 function defaultShape () {
   return [this.data.length]
