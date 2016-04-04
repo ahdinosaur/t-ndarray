@@ -12,6 +12,7 @@ var TrivialNdarray = Tc.struct({
 }, 'TrivialNdarray')
 
 Object.defineProperties(TrivialNdarray.prototype, {
+  type: dp.gs(function () { return TrivialNdarray }),
   dtype: dp.gs(function () { return getDtype(this.data) }),
   dimension: dp.gs(function () { return -1 }),
   size: dp.gs(function () { return 0 }),
@@ -41,6 +42,7 @@ var defaults = {
 }
 
 Object.defineProperties(Ndarray.prototype, {
+  type: dp.gs(function () { return Ndarray }),
   size: dp.gs(function () {
     var size = 1
     for (var i = 0; i < this.shape.length; ++i) {
@@ -97,7 +99,7 @@ Object.defineProperties(Ndarray.prototype, {
         Tc.Number.is(next) && next >= 0
       ) ? next : prev
     }
-    return Ndarray.update(this, { shape: { $set: nextShape } })
+    return this.type.update(this, { shape: { $set: nextShape } })
   }),
   lo: dp(function () {
     var args = sliceArgs(arguments, 0, this.dimension)
@@ -110,7 +112,7 @@ Object.defineProperties(Ndarray.prototype, {
         nextShape[i] -= arg
       }
     }
-    return Ndarray.update(this, {
+    return this.type.update(this, {
       shape: { $set: nextShape },
       offset: { $set: nextOffset }
     })
@@ -132,7 +134,7 @@ Object.defineProperties(Ndarray.prototype, {
         nextStride[index] *= arg
       }
     }, this)
-    return Ndarray.update(this, {
+    return this.type.update(this, {
       shape: { $set: nextShape },
       stride: { $set: nextStride },
       offset: { $set: nextOffset }
@@ -149,7 +151,7 @@ Object.defineProperties(Ndarray.prototype, {
       nextShape[index] = this.shape[arg]
       nextStride[index] = this.stride[arg]
     }, this)
-    return Ndarray.update(this, {
+    return this.type.update(this, {
       shape: { $set: nextShape },
       stride: { $set: nextStride },
       offset: { $set: nextOffset }
@@ -173,7 +175,7 @@ Object.defineProperties(Ndarray.prototype, {
         nextStride.push(this.stride[index])
       }
     }, this)
-    return Ndarray.update(this, {
+    return this.type.update(this, {
       shape: { $set: nextShape },
       stride: { $set: nextStride },
       offset: { $set: nextOffset }
