@@ -1,6 +1,6 @@
 {
   "name": "t-ndarray",
-  "version": "2.4.0",
+  "version": "2.4.1",
   "description": "tcomb type for n-dimensional arrays",
   "main": "index.js",
   "scripts": {
